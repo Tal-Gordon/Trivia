@@ -62,7 +62,7 @@ def parse_message(data):
     Returns: cmd (str), data (str). If some error occured, returns None.
     CCCCCCCCCCCCCCCC|LLLL|MMM...
     """
-    parts = split_msg(data, 3)
+    parts = split_msg_regular(data)
     if parts is None:
         return ERROR_RETURN, ERROR_RETURN
     else:
@@ -75,7 +75,7 @@ def parse_message(data):
             else:
                 cmd = parts[0]
 
-        if len(parts[1]) is not 4:
+        if len(parts[1]) != 4:
             return ERROR_RETURN, ERROR_RETURN
         else:
             parts[1] = parts[1].strip()
@@ -88,7 +88,7 @@ def parse_message(data):
                 else:
                     length = parts[1]
 
-        if len(parts[2]) is not length:
+        if len(parts[2])  != length:
             return ERROR_RETURN, ERROR_RETURN
         else:
             msg = parts[2]
@@ -100,19 +100,34 @@ def split_msg(msg, expected_fields):
     """
     Helper method. gets a string and number of expected fields in it. Splits the string
     using protocol's delimiter (|) and validates that there are correct number of fields.
-    Returns: list of fields if all ok. If some error occured, returns None.
+    Returns: list of fields if all ok. If some error occurred, returns None.
     """
-    toReturn = []
+    splitted = msg.split(DELIMITER)
+    if len(splitted) == expected_fields:
+        return splitted
+    else:
+        return ERROR_RETURN
+
+
+def split_msg_regular(msg):
+    """
+    Helper method. Gets a string that's expected to be of the regular protocol
+    pattern, that is CCCCCCCCCCCCCCCC|LLLL|MMM...
+    Splits it into 3 predefined sections using the delimiter, then returns the command and message.
+    Returns None if an error occurred.
+    """
+    to_return = []
     if len(msg) < 22:
         return ERROR_RETURN
     else:
         if msg[16] is not DELIMITER or msg[21] is not DELIMITER:
             return ERROR_RETURN
         else:
-            toReturn.append(msg[0:16])
-            toReturn.append(msg[17:21])
-            toReturn.append(msg[22:])
-            return toReturn
+            to_return.append(msg[0:16])
+            to_return.append(msg[17:21])
+            to_return.append(msg[22:])
+            return to_return
+
 
 def join_msg(msg_fields):
     """
