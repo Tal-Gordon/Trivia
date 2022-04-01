@@ -356,7 +356,6 @@ def main():
             client_sockets.append(client_socket)
             print_client_sockets(client_sockets)
         else:
-            print("test")
             cmd, data = recv_message_and_parse(current_socket)
             if cmd is None or cmd == PROTOCOL_CLIENT['logout_msg']:
                 handle_logout_message(current_socket)

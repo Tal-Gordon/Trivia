@@ -27,7 +27,7 @@ PROTOCOL_SERVER = {
     "wrong_ans_msg": "WRONG_ANSWER",
     "your_score_msg": "YOUR_SCORE",
     "all_score_msg": "ALL_SCORE",
-    "error_msg_msg": "ERROR",
+    "error_msg": "ERROR",
     "no_qstn_msg": "NO_QUESTIONS"
 }  # ..  Add more commands if needed
 

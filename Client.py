@@ -2,8 +2,7 @@ import socket
 import Protocol as chatlib
 
 IP = '127.0.0.1'
-# PORT = 6853
-PORT = 5678
+PORT = 6853
 
 
 def build_and_send_message(conn, code, msg):
@@ -100,7 +99,13 @@ def do_question(conn):
             qstn_id, qstn, ans1, ans2, ans3, ans4 = split_by_hash(message)
             print(f"Question {qstn_id}: {qstn}")
             print(f"1. {ans1}\n2. {ans2}\n3. {ans3}\n4. {ans4}\n")
-            ans = input("Answer: ")
+            satisfactory = False
+            while not satisfactory:
+                ans = input("Answer: ")
+                if ((ans[0] == '-' and ans[1:].isdigit())) or (ans.isdigit() and int(ans) > 4):
+                    print("Unaccaptable range. Answer must be 1-4\n")
+                else:
+                    satisfactory = True
             build_and_send_message(conn, chatlib.PROTOCOL_CLIENT["send_ans_msg"], f"{qstn_id}#{ans}")
             cmd, msg = recv_message_and_parse(conn)
             if cmd == chatlib.PROTOCOL_SERVER["correct_ans_msg"]:
