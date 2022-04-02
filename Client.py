@@ -149,8 +149,8 @@ def get_logged_players(conn):
 
 def get_help():
     print("List of available commands: ")
-    print("logout - log off the game\nquestion - get a question from the game\n"
-          "score - see your personal score\nhighscore - see a highscore table\nhelp - see available commands")
+    print("question - get a question from the game\nlogged - see logged users\nscore - see your personal score\n"
+          "highscore - see a highscore table\nlogout - log off the game\nhelp - see available commands")
 
 
 def main():
@@ -172,6 +172,8 @@ def main():
             get_highscore(conn)
         elif action == "help":
             get_help()
+        elif action == "logged":
+            get_logged_players(conn)
         else:
             print("Unknown command. Please try again.")
 

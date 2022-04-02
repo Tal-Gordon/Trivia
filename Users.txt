@@ -1,0 +1,4 @@
+{
+    "test": {"password": "test", "score": 0, "questions_asked": [], "connected_ip": ""},
+    "master": {"password": "master", "score": 200, "questions_asked": [], "connected_ip": ""}
+}

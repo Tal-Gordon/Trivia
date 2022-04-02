@@ -1,7 +1,8 @@
-import random
 import socket
 import select
 import Protocol as chatlib
+import random
+import json
 
 IP = '127.0.0.1'
 PORT = 6853
@@ -81,13 +82,10 @@ def load_questions():
     Recieves: -
     Returns: questions dictionary
     """
-    questions = {
-        2313: {"question": "How much is 2+2", "answers": ["3", "4", "2", "1"], "correct": 2},
-        4122: {"question": "What is the capital of France?", "answers": ["Lion", "Marseille", "Paris", "Montpellier"],
-               "correct": 3}
-    }
-
-    return questions
+    with open('Questions.txt') as f:
+        qstns = json.loads(f.read())
+        new_qstns = {int(key): value for key, value in qstns.items()}
+        return new_qstns
 
 
 def load_user_database():
@@ -96,12 +94,8 @@ def load_user_database():
     Recieves: -
     Returns: user dictionary
     """
-    users = {
-        "test"	:	{"password" :"test" ,"score" :0 ,"questions_asked" :[]},
-        "yossi"		:	{"password" :"123" ,"score" :50 ,"questions_asked" :[]},
-        "master"	:	{"password" :"master" ,"score" :200 ,"questions_asked" :[]}
-    }
-    return users
+    with open('Users.txt') as f:
+        return json.loads(f.read())
 
 
 def handle_getscore_message(conn, username):
@@ -123,6 +117,9 @@ def handle_logout_message(conn):
     client_hostname = conn.getpeername()
     if client_hostname in logged_users.keys():
         del logged_users[client_hostname]
+    for user_attributes in users.values():
+        if client_hostname in user_attributes.values():
+            user_attributes["connected_ip"] = ""
     conn.close()
 
 
@@ -134,25 +131,40 @@ def handle_login_message(conn, data):
     Returns: None (sends answer to client)
     """
     client_hostname = conn.getpeername()
-    username, password = data.split("#")
+    username, password = data[:data.find("#")], data[data.find("#")+1:]
     if username not in users.keys():
         send_error(conn, 'The username you entered does not exist')
         return
     if users[username]['password'] != password:
         send_error(conn, 'Wrong password')
         return
+    if users[username]['connected_ip'] != "":
+        send_error(conn, 'User already connected')
+        return
     logged_users[client_hostname] = username
+    users[username]['connected_ip'] = client_hostname
     build_and_send_message(conn, chatlib.PROTOCOL_SERVER['login_ok_msg'], '')
 
 
 def handle_question_message(conn):
     global questions
-    all_questions = list(questions.keys())
-    rand_question_id = random.choice(all_questions)
-    chosen_question = questions[rand_question_id]
-    question_text, answers = chosen_question['question'], chosen_question['answers']
-    question_str = '#'.join([str(rand_question_id), question_text, answers[0], answers[1], answers[2], answers[3]])
-    build_and_send_message(conn, chatlib.PROTOCOL_SERVER['your_qstn_msg'], question_str)
+    dont_ask = []
+    for user_attributes in users.values():
+        if conn.getpeername() in user_attributes.values():
+            dont_ask = user_attributes["questions_asked"]
+
+    all_questions = list(set(questions.keys())-set(dont_ask))
+    if not all_questions:
+        build_and_send_message(conn, chatlib.PROTOCOL_SERVER['no_qstn_msg'], "")
+    else:
+        rand_question_id = random.choice(all_questions)
+        for user_attributes in users.values():
+            if conn.getpeername() in user_attributes.values():
+                user_attributes["questions_asked"].append(rand_question_id)
+        chosen_question = questions[rand_question_id]
+        question_text, answers = chosen_question['question'], chosen_question['answers']
+        question_str = '#'.join([str(rand_question_id), question_text, answers[0], answers[1], answers[2], answers[3]])
+        build_and_send_message(conn, chatlib.PROTOCOL_SERVER['your_qstn_msg'], question_str)
 
 
 def handle_highscore_message(conn):
@@ -194,8 +206,12 @@ def handle_answer_message(conn, username, data):
         qstn_id, answer = int(splitted[0]), int(splitted[1])
         answer_is_correct = questions[qstn_id]['correct'] == answer
     except ValueError as e:
-        qstn_id, answer = int(splitted[0]), splitted[1]
-        answer_is_correct = questions[qstn_id]['correct'] == questions[qstn_id]["answers"].index(answer)+1
+        try:
+            qstn_id, answer = int(splitted[0]), splitted[1]
+            answer_is_correct = questions[qstn_id]['correct'] == questions[qstn_id]["answers"].index(answer) + 1
+        except ValueError as e2:
+            send_error(conn, "Sent answer is not an index and not one of the answers")  # fix this just.. .not working
+            answer_is_correct = False
 
     if answer_is_correct:
         users[username]['score'] += CORRECT_ANSWER_POINTS
@@ -212,8 +228,7 @@ def handle_client_message(conn, cmd, data):
     Returns: None
     """
     hostname = conn.getpeername()
-    hostname_logged_in = hostname in logged_users.keys()
-    if not hostname_logged_in:
+    if hostname not in logged_users.keys():
         pass
     if cmd == chatlib.PROTOCOL_CLIENT['login_msg']:
         handle_login_message(conn, data)
@@ -246,28 +261,28 @@ def main():
     users = load_user_database()
     questions = load_questions()
     server = setup_socket()
-    clients = [server]
+    client_sockets = [server]
 
     while True:
-        read_list, write_list, exceptional_list = select.select(clients, clients, [])
+        read_list, write_list, exceptional_list = select.select(client_sockets, client_sockets, [])
         for conn in read_list:
             if conn is server:
                 client, address = server.accept()
-                print(f'Client {address} joined')
-                clients.append(client)
+                print(f'Client {address} connected')
+                client_sockets.append(client)
             else:
                 cmd, data = recv_message_and_parse(conn)
                 if cmd is None or cmd == chatlib.PROTOCOL_CLIENT['logout_msg']:
                     handle_logout_message(conn)
-                    clients.remove(conn)
-                    print('Connection terminated')
+                    client_sockets.remove(conn)
+                    print(f'Connection terminated')
                 else:
                     handle_client_message(conn, cmd, data)
 
         for message in messages_to_send:
             conn, data = message
             if conn in write_list:
-                while conn in clients:
+                while conn in client_sockets:
                     conn.sendall(data.encode())
 
                 messages_to_send.clear()
