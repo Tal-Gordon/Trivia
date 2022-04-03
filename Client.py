@@ -102,8 +102,8 @@ def do_question(conn):
             satisfactory = False
             while not satisfactory:
                 ans = input("Answer: ")
-                if ((ans[0] == '-' and ans[1:].isdigit())) or (ans.isdigit() and int(ans) > 4):
-                    print("Unaccaptable range. Answer must be 1-4\n")
+                if (ans[0] == '-' and ans[1:].isdigit()) or (ans.isdigit() and int(ans) > 4) or not ans.isdigit():
+                    print("Unaccaptable answer. Answer must be 1-4\n")
                 else:
                     satisfactory = True
             build_and_send_message(conn, chatlib.PROTOCOL_CLIENT["send_ans_msg"], f"{qstn_id}#{ans}")

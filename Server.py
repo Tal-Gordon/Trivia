@@ -20,7 +20,7 @@ def build_and_send_message(conn, code, msg):
     """
     Builds a new message using chatlib, wanted code and message.
     Prints debug info, then sends it to the given socket.
-    Paramaters: conn (socket object), code (str), msg (str)
+    Parameters: conn (socket object), code (str), msg (str)
     Returns: Nothing
     """
     message = chatlib.build_message(code, msg)
@@ -31,9 +31,9 @@ def recv_message_and_parse(conn):
     """
     Receives a new message from given socket.
     Prints debug info, then parses the message using chatlib.
-    Paramaters: conn (socket object)
+    Parameters: conn (socket object)
     Returns: cmd (str) and data (str) of the received message.
-    If error occured, will return None, None
+    If error occurred, will return None, None
     """
     data = conn.recv(4096).decode()
     cmd, msg = chatlib.parse_message(data)
@@ -41,12 +41,6 @@ def recv_message_and_parse(conn):
         return cmd, msg
     else:
         return chatlib.ERROR_RETURN, chatlib.ERROR_RETURN
-
-
-def build_send_recv_parse(conn, cmd, msg):
-    build_and_send_message(conn, cmd, msg)
-    command, message = recv_message_and_parse(conn)
-    return command, message
 
 
 def setup_socket():
@@ -78,8 +72,8 @@ def print_client_sockets(client_sockets):
 
 def load_questions():
     """
-    Loads questions bank from file	## FILE SUPPORT TO BE ADDED LATER
-    Recieves: -
+    Loads questions bank from file
+    Receives: -
     Returns: questions dictionary
     """
     with open('Questions.txt') as f:
@@ -90,8 +84,8 @@ def load_questions():
 
 def load_user_database():
     """
-    Loads users list from file	## FILE SUPPORT TO BE ADDED LATER
-    Recieves: -
+    Loads users list from file
+    Receives: -
     Returns: user dictionary
     """
     with open('Users.txt') as f:
@@ -101,7 +95,7 @@ def load_user_database():
 def handle_getscore_message(conn, username):
     """
     Sends to the socket YOURSCORE message with the user's score.
-    Recieves: socket and username (str)
+    Receives: socket and username (str)
     Returns: None (sends answer to client)
     """
     score = users[username]['score']
@@ -110,7 +104,7 @@ def handle_getscore_message(conn, username):
 
 def handle_logout_message(conn):
     """
-    Closes the given socket (in laster chapters, also remove user from logged_users dictionary)
+    Closes the given socket
     Receives: socket
     Returns: None
     """
@@ -170,7 +164,7 @@ def handle_question_message(conn):
 def handle_highscore_message(conn):
     """
     Sends to the socket HIGHSCORE message.
-    Recieves: socket
+    Receives: socket
     Returns: None (sends answer to client)
     """
     global users
@@ -189,7 +183,7 @@ def handle_highscore_message(conn):
 def handle_logged_message(conn):
     """
     Sends to the socket LOGGED message with all the logged users
-    Recieves: socket and username (str)
+    Receives: socket and username (str)
     Returns: None (sends answer to client)
     """
     global logged_users
@@ -202,17 +196,8 @@ def handle_answer_message(conn, username, data):
     splitted = data.split("#")
     if not splitted:
         send_error(conn, "Error: got empty answer")
-    try:
-        qstn_id, answer = int(splitted[0]), int(splitted[1])
-        answer_is_correct = questions[qstn_id]['correct'] == answer
-    except ValueError as e:
-        try:
-            qstn_id, answer = int(splitted[0]), splitted[1]
-            answer_is_correct = questions[qstn_id]['correct'] == questions[qstn_id]["answers"].index(answer) + 1
-        except ValueError as e2:
-            send_error(conn, "Sent answer is not an index and not one of the answers")  # fix this just.. .not working
-            answer_is_correct = False
-
+    qstn_id, answer = int(splitted[0]), int(splitted[1])
+    answer_is_correct = questions[qstn_id]['correct'] == answer
     if answer_is_correct:
         users[username]['score'] += CORRECT_ANSWER_POINTS
         build_and_send_message(conn, chatlib.PROTOCOL_SERVER['correct_ans_msg'], '')
@@ -255,7 +240,7 @@ def handle_client_message(conn, cmd, data):
 
 
 def main():
-    # Initializes global users and questions dicionaries using load functions, will be used later
+    # Initializes global users and questions dictionaries using load functions, will be used later
     global users
     global questions
     users = load_user_database()
