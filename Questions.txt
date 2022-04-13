@@ -1,6 +1,6 @@
 {
     "1": {"question": "According to forklore, what legendary creature creates no reflection in a mirror?", "answers": ["Unicorn", "Valkyrie", "Medusa", "Vampire"], "correct": 4},
-    "2": {"question": "What is the capital of France?", "answers": ["Lion", "Marseille", "Paris", "Montpellier"], "correct": 3},
+    "2": {"question": "What is the capital of Canada?", "answers": ["Ottawa", "Lion", "Toronto", "Montreal"], "correct": 1},
     "3": {"question": "A traditional 'Hawaiian' pizza is topped with an unusual combination of pineapple and what?", "answers": ["Bacon", "Ham", "Cheddar", "Tomatoes"], "correct": 2},
     "4": {"question": "How many horns does a unicorn, a ram, and a triceratops have altogether?", "answers": ["4", "5", "7", "6"], "correct": 4},
     "5": {"question": "A web site that doesn't allow access to a page will often prompt the phrase 'Forbidden' and what code number?", "answers": ["403", "404", "500", "400"], "correct": 1},
@@ -15,8 +15,8 @@
     "14": {"question": "In Cards Against Humanity, the person reading the black card is called what?", "answers": ["Marker", "Card reader", "Tzar", "Humanity"], "correct": 3},
     "15": {"question": "How many numbers between ten and twenty have names that end with the suffix '-teen?'", "answers": ["8", "7", "20", "5"], "correct": 2},
     "16": {"question": "According to the famous superstition, what should you do before leaving for a trip?", "answers": ["Smile to yourself in the mirror", "Spit three times", "Sit down", "smoke a pipe"], "correct": 3},
-    "17": {"question": "How tall was the first programmable, electronic, general-purpose digital computer, ENIAC?", "answers": ["30m", "10m", "2m", "120m"], "correct": 1},
+    "17": {"question": "Which of these Windows versions was the earliest?", "answers": ["Windows NT 3.5", "Windows 95", "Windows Sun Valley", "Windows 7"], "correct": 1},
     "18": {"question": "How do you win at a Russian Roulette?", "answers": ["By letting the other person go first", "By having the other person die", "By not dying", "By not playing"], "correct": 4},
-    "19": {"question": "According to Joules Vernes popular book, who was Nemo?", "answers": ["A fish", "A submarine captain", "A US persident", "Harel Asher"], "correct": 2},
+    "19": {"question": "According to a popular book by Joules Verne, who was Nemo?", "answers": ["A fish", "A submarine captain", "A US persident", "Harel Asher"], "correct": 2},
     "20": {"question": "The cry 'eureka!' comes from a Greek word meaning 'I have' what?", "answers": ["Killed it", "Dyed it", "Found it", "Done it"], "correct": 3}
 }
