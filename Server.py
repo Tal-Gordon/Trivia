@@ -196,14 +196,17 @@ def handle_answer_message(conn, username, data):
     splitted = data.split("#")
     if not splitted:
         send_error(conn, "Error: got empty answer")
-    qstn_id, answer = int(splitted[0]), int(splitted[1])
-    answer_is_correct = questions[qstn_id]['correct'] == answer
-    if answer_is_correct:
-        users[username]['score'] += CORRECT_ANSWER_POINTS
-        build_and_send_message(conn, chatlib.PROTOCOL_SERVER['correct_ans_msg'], '')
-    else:
-        users[username]['score'] += WRONG_ANSWER_POINTS
-        build_and_send_message(conn, chatlib.PROTOCOL_SERVER['wrong_ans_msg'], str(questions[qstn_id]['correct']))
+    try:
+        qstn_id, answer = int(splitted[0]), int(splitted[1])
+        answer_is_correct = questions[qstn_id]['correct'] == answer
+        if answer_is_correct:
+            users[username]['score'] += CORRECT_ANSWER_POINTS
+            build_and_send_message(conn, chatlib.PROTOCOL_SERVER['correct_ans_msg'], '')
+        else:
+            users[username]['score'] += WRONG_ANSWER_POINTS
+            build_and_send_message(conn, chatlib.PROTOCOL_SERVER['wrong_ans_msg'], str(questions[qstn_id]['correct']))
+    except ValueError as e:
+        send_error(conn, "Error: unacceptable input")
 
 
 def handle_client_message(conn, cmd, data):
