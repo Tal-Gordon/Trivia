@@ -208,7 +208,7 @@ def handle_answer_message(conn, username, data):
         else:
             users[username]['score'] += WRONG_ANSWER_POINTS
             build_and_send_message(conn, chatlib.PROTOCOL_SERVER['wrong_ans_msg'], str(questions[qstn_id]['correct']))
-    except ValueError as e:
+    except ValueError:
         send_error(conn, "Error: unacceptable input")
 
 
