@@ -1,4 +1,22 @@
 {
-    "test": {"password": "test", "score": 0, "questions_asked": [], "connected_ip": ""},
-    "admin": {"password": "root", "score": 100, "questions_asked": [], "connected_ip": ""}
+    "user1": {"password": "user1", "score": 0, "questions_asked": [], "connected_ip": ""},
+    "user2": {"password": "user2", "score": 0, "questions_asked": [], "connected_ip": ""},
+    "user3": {"password": "user3", "score": 0, "questions_asked": [], "connected_ip": ""},
+    "user4": {"password": "user4", "score": 0, "questions_asked": [], "connected_ip": ""},
+    "user5": {"password": "user5", "score": 0, "questions_asked": [], "connected_ip": ""},
+    "user6": {"password": "user6", "score": 0, "questions_asked": [], "connected_ip": ""},
+    "user7": {"password": "user7", "score": 0, "questions_asked": [], "connected_ip": ""},
+    "user8": {"password": "user8", "score": 0, "questions_asked": [], "connected_ip": ""},
+    "user9": {"password": "user9", "score": 0, "questions_asked": [], "connected_ip": ""},
+    "user10": {"password": "user10", "score": 0, "questions_asked": [], "connected_ip": ""},
+    "user11": {"password": "user11", "score": 0, "questions_asked": [], "connected_ip": ""},
+    "user12": {"password": "user12", "score": 0, "questions_asked": [], "connected_ip": ""},
+    "user13": {"password": "user13", "score": 0, "questions_asked": [], "connected_ip": ""},
+    "user14": {"password": "user14", "score": 0, "questions_asked": [], "connected_ip": ""},
+    "user15": {"password": "user15", "score": 0, "questions_asked": [], "connected_ip": ""},
+    "user16": {"password": "user16", "score": 0, "questions_asked": [], "connected_ip": ""},
+    "user17": {"password": "user17", "score": 0, "questions_asked": [], "connected_ip": ""},
+    "user18": {"password": "user18", "score": 0, "questions_asked": [], "connected_ip": ""},
+    "user19": {"password": "user19", "score": 0, "questions_asked": [], "connected_ip": ""},
+    "user20": {"password": "user20", "score": 0, "questions_asked": [], "connected_ip": ""}
 }

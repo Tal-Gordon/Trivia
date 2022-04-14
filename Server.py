@@ -4,7 +4,7 @@ import Protocol as chatlib
 import random
 import json
 
-IP = '127.0.0.1'
+IP = socket.gethostbyname(socket.gethostname())
 PORT = 6853
 
 users = {}
@@ -35,11 +35,14 @@ def recv_message_and_parse(conn):
     Returns: cmd (str) and data (str) of the received message.
     If error occurred, will return None, None
     """
-    data = conn.recv(4096).decode()
-    cmd, msg = chatlib.parse_message(data)
-    if cmd != chatlib.ERROR_RETURN or msg != chatlib.ERROR_RETURN:
-        return cmd, msg
-    else:
+    try:
+        data = conn.recv(10021).decode()
+        cmd, msg = chatlib.parse_message(data)
+        if cmd != chatlib.ERROR_RETURN or msg != chatlib.ERROR_RETURN:
+            return cmd, msg
+        else:
+            return chatlib.ERROR_RETURN, chatlib.ERROR_RETURN
+    except ConnectionResetError:
         return chatlib.ERROR_RETURN, chatlib.ERROR_RETURN
 
 
@@ -243,7 +246,6 @@ def handle_client_message(conn, cmd, data):
 
 
 def main():
-    # Initializes global users and questions dictionaries using load functions, will be used later
     global users
     global questions
     users = load_user_database()
