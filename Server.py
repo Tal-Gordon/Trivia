@@ -1,6 +1,6 @@
 import socket
 import select
-import Protocol as chatlib
+import Protocol
 import random
 import json
 
@@ -18,32 +18,32 @@ WRONG_ANSWER_POINTS = 0
 
 def build_and_send_message(conn, code, msg):
     """
-    Builds a new message using chatlib, wanted code and message.
+    Builds a new message using Protocol, wanted code and message.
     Prints debug info, then sends it to the given socket.
     Parameters: conn (socket object), code (str), msg (str)
     Returns: Nothing
     """
-    message = chatlib.build_message(code, msg)
+    message = Protocol.build_message(code, msg)
     conn.sendall(message.encode())
 
 
 def recv_message_and_parse(conn):
     """
     Receives a new message from given socket.
-    Prints debug info, then parses the message using chatlib.
+    Prints debug info, then parses the message using Protocol.
     Parameters: conn (socket object)
     Returns: cmd (str) and data (str) of the received message.
     If error occurred, will return None, None
     """
     try:
         data = conn.recv(10021).decode()
-        cmd, msg = chatlib.parse_message(data)
-        if cmd != chatlib.ERROR_RETURN or msg != chatlib.ERROR_RETURN:
+        cmd, msg = Protocol.parse_message(data)
+        if cmd != Protocol.ERROR_RETURN or msg != Protocol.ERROR_RETURN:
             return cmd, msg
         else:
-            return chatlib.ERROR_RETURN, chatlib.ERROR_RETURN
+            return Protocol.ERROR_RETURN, Protocol.ERROR_RETURN
     except ConnectionResetError:
-        return chatlib.ERROR_RETURN, chatlib.ERROR_RETURN
+        return Protocol.ERROR_RETURN, Protocol.ERROR_RETURN
 
 
 def setup_socket():
@@ -65,7 +65,7 @@ def send_error(conn, error_msg):
     Receives: socket, message error string from called function
     Returns: None
     """
-    build_and_send_message(conn, chatlib.PROTOCOL_SERVER["error_msg"], error_msg)
+    build_and_send_message(conn, Protocol.PROTOCOL_SERVER["error_msg"], error_msg)
 
 
 def print_client_sockets(client_sockets):
@@ -102,7 +102,7 @@ def handle_getscore_message(conn, username):
     Returns: None (sends answer to client)
     """
     score = users[username]['score']
-    build_and_send_message(conn, chatlib.PROTOCOL_SERVER['your_score_msg'], str(score))
+    build_and_send_message(conn, Protocol.PROTOCOL_SERVER['your_score_msg'], str(score))
 
 
 def handle_logout_message(conn):
@@ -140,7 +140,7 @@ def handle_login_message(conn, data):
         return
     logged_users[client_hostname] = username
     users[username]['connected_ip'] = client_hostname
-    build_and_send_message(conn, chatlib.PROTOCOL_SERVER['login_ok_msg'], '')
+    build_and_send_message(conn, Protocol.PROTOCOL_SERVER['login_ok_msg'], '')
 
 
 def handle_question_message(conn):
@@ -152,7 +152,7 @@ def handle_question_message(conn):
 
     all_questions = list(set(questions.keys())-set(dont_ask))
     if not all_questions:
-        build_and_send_message(conn, chatlib.PROTOCOL_SERVER['no_qstn_msg'], "")
+        build_and_send_message(conn, Protocol.PROTOCOL_SERVER['no_qstn_msg'], "")
     else:
         rand_question_id = random.choice(all_questions)
         for user_attributes in users.values():
@@ -161,7 +161,7 @@ def handle_question_message(conn):
         chosen_question = questions[rand_question_id]
         question_text, answers = chosen_question['question'], chosen_question['answers']
         question_str = '#'.join([str(rand_question_id), question_text, answers[0], answers[1], answers[2], answers[3]])
-        build_and_send_message(conn, chatlib.PROTOCOL_SERVER['your_qstn_msg'], question_str)
+        build_and_send_message(conn, Protocol.PROTOCOL_SERVER['your_qstn_msg'], question_str)
 
 
 def handle_highscore_message(conn):
@@ -180,7 +180,7 @@ def handle_highscore_message(conn):
     for user, score in users_and_scores:
         highscore_str += '%s: %d\n' % (user, score)
 
-    build_and_send_message(conn, chatlib.PROTOCOL_SERVER['all_score_msg'], highscore_str)
+    build_and_send_message(conn, Protocol.PROTOCOL_SERVER['all_score_msg'], highscore_str)
 
 
 def handle_logged_message(conn):
@@ -192,7 +192,7 @@ def handle_logged_message(conn):
     global logged_users
     all_logged_users = logged_users.values()
     logged_str = ','.join(all_logged_users)
-    build_and_send_message(conn, chatlib.PROTOCOL_SERVER['logged_ans_msg'], logged_str)
+    build_and_send_message(conn, Protocol.PROTOCOL_SERVER['logged_ans_msg'], logged_str)
 
 
 def handle_answer_message(conn, username, data):
@@ -204,10 +204,10 @@ def handle_answer_message(conn, username, data):
         answer_is_correct = questions[qstn_id]['correct'] == answer
         if answer_is_correct:
             users[username]['score'] += CORRECT_ANSWER_POINTS
-            build_and_send_message(conn, chatlib.PROTOCOL_SERVER['correct_ans_msg'], '')
+            build_and_send_message(conn, Protocol.PROTOCOL_SERVER['correct_ans_msg'], '')
         else:
             users[username]['score'] += WRONG_ANSWER_POINTS
-            build_and_send_message(conn, chatlib.PROTOCOL_SERVER['wrong_ans_msg'], str(questions[qstn_id]['correct']))
+            build_and_send_message(conn, Protocol.PROTOCOL_SERVER['wrong_ans_msg'], str(questions[qstn_id]['correct']))
     except ValueError:
         send_error(conn, "Error: unacceptable input")
 
@@ -221,23 +221,23 @@ def handle_client_message(conn, cmd, data):
     hostname = conn.getpeername()
     if hostname not in logged_users.keys():
         pass
-    if cmd == chatlib.PROTOCOL_CLIENT['login_msg']:
+    if cmd == Protocol.PROTOCOL_CLIENT['login_msg']:
         handle_login_message(conn, data)
     else:
         username = logged_users[hostname]
-        if cmd == chatlib.PROTOCOL_CLIENT['logout_msg']:
+        if cmd == Protocol.PROTOCOL_CLIENT['logout_msg']:
             handle_logout_message(conn)
-        elif cmd == chatlib.PROTOCOL_CLIENT['my_score_msg']:
+        elif cmd == Protocol.PROTOCOL_CLIENT['my_score_msg']:
             handle_getscore_message(conn, username)
-        elif cmd == chatlib.PROTOCOL_CLIENT['highscore_msg']:
+        elif cmd == Protocol.PROTOCOL_CLIENT['highscore_msg']:
             handle_highscore_message(conn)
             pass
-        elif cmd == chatlib.PROTOCOL_CLIENT['logged_msg']:
+        elif cmd == Protocol.PROTOCOL_CLIENT['logged_msg']:
             handle_logged_message(conn)
             pass
-        elif cmd == chatlib.PROTOCOL_CLIENT['get_qstn_msg']:
+        elif cmd == Protocol.PROTOCOL_CLIENT['get_qstn_msg']:
             handle_question_message(conn)
-        elif cmd == chatlib.PROTOCOL_CLIENT['send_ans_msg']:
+        elif cmd == Protocol.PROTOCOL_CLIENT['send_ans_msg']:
             handle_answer_message(conn, username, data)
             pass
         else:
@@ -262,7 +262,7 @@ def main():
                 client_sockets.append(client)
             else:
                 cmd, data = recv_message_and_parse(conn)
-                if cmd is None or cmd == chatlib.PROTOCOL_CLIENT['logout_msg']:
+                if cmd is None or cmd == Protocol.PROTOCOL_CLIENT['logout_msg']:
                     handle_logout_message(conn)
                     client_sockets.remove(conn)
                     print(f'Connection terminated')
