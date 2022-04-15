@@ -67,8 +67,7 @@ def connect():
 
 
 def error_and_exit(msg):
-    print("The script was terminated because of the following: ")
-    print(msg)
+    print(f"The script was terminated because of the following:\n{msg}")
     exit()
 
 
